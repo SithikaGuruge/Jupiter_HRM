@@ -5,6 +5,21 @@ import { useNavigate } from "react-router-dom";
 
 const AddHRManager = () => {
   const navigate = useNavigate();
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/check")
+      .then((response) => {
+        if (response.data.valid && response.data.role === "JT001") {
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const goBack = () => {
     navigate(-1);
@@ -19,12 +34,18 @@ const AddHRManager = () => {
     Birthday: "",
     ContactNumber: "",
     MaritalStatus: "",
+    Job_Title: "",
     Status: "",
     PayGrade: "",
+    Supervisor: "",
+    Department: "",
+    Gender: "",
   });
   const maritalStatusOptions = ["Un-Married", "Married", "Divorced", "Widowed"];
   const [statusType, setStatusType] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [departmentList, setDepartmentList] = useState([]);
+  const genderList = ["Male", "Female"];
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormSubmitted(true);
@@ -41,9 +62,11 @@ const AddHRManager = () => {
       Birthday: "",
       ContactNumber: "",
       MaritalStatus: "",
-
       Status: "",
       PayGrade: "",
+      Supervisor: "",
+      Department: "",
+      Gender: "",
     });
   }
 
@@ -68,6 +91,13 @@ const AddHRManager = () => {
       setBranchList(response.data.map((item) => item.Branch_Name));
     };
     fetchBranchList();
+
+    const DepartmentList = async () => {
+      const response = await axios.get("http://localhost:5001/api/department");
+      console.log(response.data);
+      setDepartmentList(response.data.map((item) => item.Department_Name));
+    };
+    DepartmentList();
   }, []);
 
   useEffect(() => {
@@ -82,7 +112,9 @@ const AddHRManager = () => {
           Job_Title: "HR Manager",
           Status: record.Status,
           PayGrade: record.PayGrade,
-          supervisor: null,
+          Supervisor: null,
+          Department: record.Department,
+          Gender: record.Gender,
         })
         .then((res) => res.json())
         .then((json) => {
@@ -193,6 +225,42 @@ const AddHRManager = () => {
             />
           </label>
           <br />
+
+          <label className="mb-3">
+            Gender:
+            <select
+              value={record.Gender}
+              onChange={(e) => setRecord({ ...record, Gender: e.target.value })}
+              style={{ marginLeft: "10px" }}
+            >
+              <option value="">Select Gender</option>
+              {genderList.map((gender, index) => (
+                <option key={index} value={gender}>
+                  {gender}
+                </option>
+              ))}
+            </select>
+          </label>
+          <br />
+          <label className="mb-3">
+            Department :
+            <select
+              value={record.Department}
+              onChange={(e) =>
+                setRecord({ ...record, Department: e.target.value })
+              }
+              style={{ marginLeft: "10px" }}
+            >
+              <option value="">Select a supervisor</option>
+              {departmentList.map((department, index) => (
+                <option key={index} value={department}>
+                  {department}
+                </option>
+              ))}
+            </select>
+          </label>
+          <br />
+
           <label className="mb-3">
             Marital Status:
             <select

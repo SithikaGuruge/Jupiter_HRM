@@ -73,6 +73,11 @@ const EmployeeUI = () => {
                 </Link>
               </li>
               <li className="nav-item">
+                <Link to="/login/Employee/reset-password" className="nav-link">
+                  Reset Password
+                </Link>
+              </li>
+              <li className="nav-item">
                 <Link to="/" onClick={handleLogOut} className="nav-link">
                   Log Out
                 </Link>

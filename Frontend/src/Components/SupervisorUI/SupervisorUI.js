@@ -7,6 +7,30 @@ const SupervisorUI = () => {
   const handleViewPersonalInfo = () => {
     navigate("/login/Employee/EmployeeUI/PersonalInfo");
   };
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/check")
+      .then((response) => {
+        if (
+          (response.data.valid && response.data.role === "JT003") ||
+          response.data.role === "JT004" ||
+          response.data.role === "JT009" ||
+          response.data.role === "JT005"
+        ) {
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+  const handleLogOut = () => {
+    axios.get("http://localhost:5001/api/logout");
+  };
+
 
   return (
     <div>
@@ -30,10 +54,10 @@ const SupervisorUI = () => {
             <ul className="navbar-nav ml-auto">
               <li className="nav-item">
                 <Link
-                  to="/login/Employee/EmployeeUI/PersonalInfo"
+                  to="/login/Employee/EmployeeUI/request-leave"
                   className="nav-link"
                 >
-                  View Leaves Informations
+                  Request Leave
                 </Link>
               </li>
               <li className="nav-item">
@@ -41,20 +65,20 @@ const SupervisorUI = () => {
                   to="/login/Employee/ManUI/request-leave"
                   className="nav-link"
                 >
-                  View Employee
+                  View Leave Informations
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/login/Employee/" className="nav-link">
+                <Link
+                  to="/login/Employee/EmployeeUI/PersonalInfo"
+                  className="nav-link"
+                >
                   View My Details
                 </Link>
               </li>
               <li className="nav-item">
-                <Link
-                  to="/login/Employee/ManUI/request-leave"
-                  className="nav-link"
-                >
-                  View Reports
+                <Link to="/login/Employee/reset-password" className="nav-link">
+                  Reset Password
                 </Link>
               </li>
               <li className="nav-item">

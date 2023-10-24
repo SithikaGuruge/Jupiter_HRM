@@ -1,20 +1,189 @@
-n, m = map(int, input().split())
-heights = list(map(int, input().split()))
-candles = list(map(int, input().split()))
+# import re
 
-# Sort the candles in decreasing order of their heights
-heights.sort(reverse=True)
+# def reverse_operators(expression):
+#     expression = ''.join(expression)
+#     expression = expression.replace('+', 'temp').replace('-', '+').replace('temp', '-')
+#     expression = expression.replace('*', 'temp').replace('/', '*').replace('temp', '/')
+#     return expression
 
-evenings = 0
-for c in candles:
-    # Try to light the tallest available candles
-    while heights and heights[-1] < c:
-        heights.pop()
-    if len(heights) < c:
-        break
-    # Light the candles for the evening
-    for i in range(c):
-        heights[i] -= 1
-    evenings += 1
+# def evaluate_expression(values, operators):
+#     # Define operator precedence
+#     precedence = {'*': 2, '/': 2, '+': 1, '-': 1}
 
-print(evenings)
+#     # Initialize stacks for values and operators
+#     value_stack = []
+#     operator_stack = []
+
+#     # Iterate over the values and operators
+#     for i in range(len(values)):
+#         value = values[i]
+#         if isinstance(value, int):
+#             # If the current value is an integer, push it onto the value stack
+#             value_stack.append(value)
+#         elif value == '(':
+#             # If the current value is an opening parenthesis, push it onto the operator stack
+#             operator_stack.append(value)
+#         elif value == ')':
+#             # If the current value is a closing parenthesis, pop operators from the operator stack
+#             # until the matching opening parenthesis is found, and apply each operator to the top
+#             # two values on the value stack.
+#             while operator_stack[-1] != '(':
+#                 operator = operator_stack.pop()
+#                 b = value_stack.pop()
+#                 a = value_stack.pop()
+#                 if operator == '+':
+#                     value_stack.append(a + b)
+#                 elif operator == '-':
+#                     value_stack.append(a - b)
+#                 elif operator == '*':
+#                     value_stack.append(a * b)
+#                 elif operator == '/':
+#                     value_stack.append(a // b)
+#             operator_stack.pop()
+#         else:
+#             # If the current value is an operator, pop operators from the operator stack
+#             # until the top operator has lower precedence or the stack is empty, and
+#             # apply each operator to the top two values on the value stack.
+#             while operator_stack and operator_stack[-1] != '(' and precedence[operator_stack[-1]] >= precedence[value]:
+#                 operator = operator_stack.pop()
+#                 b = value_stack.pop()
+#                 a = value_stack.pop()
+#                 if operator == '+':
+#                     value_stack.append(a + b)
+#                 elif operator == '-':
+#                     value_stack.append(a - b)
+#                 elif operator == '*':
+#                     value_stack.append(a * b)
+#                 elif operator == '/':
+#                     value_stack.append(a // b)
+#             operator_stack.append(value)
+
+#     # After iterating over all the values and operators, apply any remaining operators
+#     # to the top two values on the value stack.
+#     while operator_stack:
+#         operator = operator_stack.pop()
+#         b = value_stack.pop()
+#         a = value_stack.pop()
+#         if operator == '+':
+#             value_stack.append(a + b)
+#         elif operator == '-':
+#             value_stack.append(a - b)
+#         elif operator == '*':
+#             value_stack.append(a * b)
+#         elif operator == '/':
+#             value_stack.append(a // b)
+
+#     # The final result is the only value left on the value stack.
+#     return value_stack[0]
+
+# input1 = input()
+# value_list = input1.split(',')
+# base = int(value_list[0])
+# expression = value_list[1]
+# operators = r'[-+*/()]'
+# values = re.findall(r'\d+|\(|\)|[-+*/]', expression)
+# expressionList = reverse_operators(re.findall(operators, expression))
+
+# for i in range(len(values)):
+#     if values[i].isdigit():
+#         # Convert the current value to an integer and then to the given base
+#         values[i] = int(str(values[i]), base)
+
+# # Evaluate the expression using the values and operators lists
+# result = evaluate_expression(values, expressionList)
+# print(result)
+
+import re
+
+def reverse_operators(expression):
+    expression = ''.join(expression)
+    expression = expression.replace('+', 'temp').replace('-', '+').replace('temp', '-')
+    expression = expression.replace('*', 'temp').replace('/', '*').replace('temp', '/')
+    return expression
+
+def evaluate_expression(values, operators):
+    # Define operator precedence
+    precedence = {'*': 2, '/': 2, '+': 1, '-': 1}
+
+    # Initialize stacks for values and operators
+    value_stack = []
+    operator_stack = []
+
+    # Iterate over the values and operators
+    for i in range(len(values)):
+        value = values[i]
+        if isinstance(value, int):
+            # If the current value is an integer, push it onto the value stack
+            value_stack.append(value)
+        elif value == '(':
+            # If the current value is an opening parenthesis, push it onto the operator stack
+            operator_stack.append(value)
+        elif value == ')':
+            # If the current value is a closing parenthesis, pop operators from the operator stack
+            # until the matching opening parenthesis is found, and apply each operator to the top
+            # two values on the value stack.
+            while operator_stack[-1] != '(':
+                operator = operator_stack.pop()
+                b = value_stack.pop()
+                a = value_stack.pop()
+                if operator == '+':
+                    value_stack.append(a + b)
+                elif operator == '-':
+                    value_stack.append(a - b)
+                elif operator == '*':
+                    value_stack.append(a * b)
+                elif operator == '/':
+                    value_stack.append(a // b)
+            operator_stack.pop()
+        else:
+            # If the current value is an operator, pop operators from the operator stack
+            # until the top operator has lower precedence or the stack is empty, and
+            # apply each operator to the top two values on the value stack.
+            while operator_stack and operator_stack[-1] != '(' and precedence[operator_stack[-1]] >= precedence[value]:
+                operator = operator_stack.pop()
+                b = value_stack.pop()
+                a = value_stack.pop()
+                if operator == '+':
+                    value_stack.append(a + b)
+                elif operator == '-':
+                    value_stack.append(a - b)
+                elif operator == '*':
+                    value_stack.append(a * b)
+                elif operator == '/':
+                    value_stack.append(a // b)
+            operator_stack.append(value)
+
+    # After iterating over all the values and operators, apply any remaining operators
+    # to the top two values on the value stack.
+    while operator_stack:
+        operator = operator_stack.pop()
+        b = value_stack.pop()
+        a = value_stack.pop()
+        if operator == '+':
+            value_stack.append(a + b)
+        elif operator == '-':
+            value_stack.append(a - b)
+        elif operator == '*':
+            value_stack.append(a * b)
+        elif operator == '/':
+            value_stack.append(a // b)
+
+    # The final result is the only value left on the value stack.
+    return value_stack[0]
+
+input1 = input()
+value_list = input1.split(',')
+base = int(value_list[0])
+expression = value_list[1]
+operators = r'[-+*/()]'
+values = re.findall(r'\d+|\(|\)|[-+*/]', expression)
+expressionList = reverse_operators(re.findall(operators, expression))
+
+for i in range(len(values)):
+    if values[i].isdigit():
+        # Convert the current value to an integer and then to the given base
+        values[i] = int(str(values[i]), base)
+
+# Evaluate the expression using the values and operators lists
+result = evaluate_expression(values, expressionList)
+print(result)

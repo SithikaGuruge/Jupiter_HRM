@@ -8,19 +8,7 @@ const Employee = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
-  // const [auth, setAuth] = useState(true);
-  // const [record, setRecord] = useState();
-
-  // useEffect(() => {
-  //   axios.get("http://localhost:5001/", username).then((response) => {
-  //     if (response.data.message === "Success") {
-  //       setAuth(true);
-  //       setRecord(response.data.job);
-  //     } else {
-  //       setAuth(false);
-  //     }
-  //   });
-  // }, []);
+  const [errorMessage, setErrorMessage] = useState("");
 
   //post user name and password to the backend and check whether it is correct
   axios.defaults.withCredentials = true;
@@ -48,11 +36,9 @@ const Employee = () => {
       });
 
       console.log(response.data.status);
-
+      setErrorMessage(response.data.message);
       if (response.data.status === "success") {
         navigate("/login/home");
-      } else {
-        alert("Invalid username or password");
       }
     } catch (err) {
       console.error(err.status);
@@ -90,6 +76,9 @@ const Employee = () => {
                 className="form-control rounded-0"
                 onChange={(event) => setPassword(event.target.value)}
               />
+            </div>
+            <div className="mb-3">
+              <p className="text-danger">{errorMessage}</p>
             </div>
             <button className="btn btn-success w-100 rounded-0">Login</button>
           </form>

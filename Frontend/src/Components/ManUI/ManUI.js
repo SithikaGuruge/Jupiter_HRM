@@ -39,12 +39,26 @@ const ManagerUI = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ml-auto">
               <li className="nav-item">
-                <Link to="/login/Employee/ManUI/AddEmployee" className="nav-link">
+
+                <Link
+                  to="/login/Employee/ManUI/AddEmployee"
+                  className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
+                >
+
                   Add Employee
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/login/Employee/ManUI/EmployeeInfo" className="nav-link">
+
+                <Link
+                  to="/login/Employee/ManUI/EmployeeInfo"
+                  className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
+                >
+
                   View Employees
                 </Link>
               </li>
@@ -52,17 +66,53 @@ const ManagerUI = () => {
                 <Link
                   to="/login/Employee/EmployeeUI/PersonalInfo"
                   className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
                 >
                   View My Details
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/login/Employee/ManUI/request-leave" className="nav-link">
+
+                <Link
+                  to="/login/Employee/ManUI/request-leave"
+                  className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
+                >
+
                   View Reports
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/login/" className="nav-link">
+                <Link
+                  to="/login/Employee/EmployeeUI/request-leave"
+                  className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
+                >
+                  Request Leave
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  to="/login/Employee/reset-password"
+                  className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
+                >
+                  Reset Password
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  to="/"
+                  onClick={handleLogOut}
+                  className="nav-link"
+                  data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show"
+                >
+
                   Log Out
                 </Link>
               </li>

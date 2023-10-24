@@ -7,9 +7,28 @@ const EditPI = () => {
   const [jobTitleList, setJobTitleList] = useState([]);
   const [payGradeList, setPayGradeList] = useState([]);
   const [statusList, setStatusList] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [branchList, setBranchList] = useState([]);
+  const [departmentList, setDepartmentList] = useState([]);
   const maritalStatusOptions = ["Un-Married", "Married", "Divorced", "Widowed"];
-  const supervisors = ["Kavindu Dasun", "Yasantha Jayalath"];
+  const genderList = ["Male", "Female"];
   const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/check")
+      .then((response) => {
+        if (response.data.valid && response.data.role === "JT002") {
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
   const goBack = () => {
     navigate(-1);
   };
@@ -35,6 +54,20 @@ const EditPI = () => {
       setPayGradeList(response1.data.map((item) => item.Pay_Grade));
     };
     fetchPayGradeList();
+
+    const fetchBranchList = async () => {
+      const response = await axios.get("http://localhost:5001/api/branch");
+      console.log(response.data);
+      setBranchList(response.data.map((item) => item.Branch_Name));
+    };
+    fetchBranchList();
+
+    const DepartmentList = async () => {
+      const response = await axios.get("http://localhost:5001/api/department");
+      console.log(response.data);
+      setDepartmentList(response.data.map((item) => item.Department_Name));
+    };
+    DepartmentList();
   }, []);
 
   //get informations of login employee
@@ -76,30 +109,33 @@ const EditPI = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                employeeId: record.Employee_ID,
-                name: record.Name,
-                birthday: record.Birthdate,
-                contactNumber: record.Emergency_contact_Number,
-                maritalStatus: record.Marital_status,
-                supervisorId: record.Supervisor_Name,
-                status: record.Status_Type,
-                jobTitle: record.Job_Title,
-                payGrade: record.Pay_Grade,
+                EmployeeID: record.Employee_ID,
+                Name: record.Name,
+                Branch_Name: record.Branch_Name,
+                Birthday: record.Birthday,
+                ContactNumber: record.Emergency_contact_Number,
+                MaritalStatus: record.Marital_status,
+                Job_Title: record.Job_Title,
+                Status: record.Status_Type,
+                PayGrade: record.Pay_grade,
+                Supervisor: record.Supervisor_Name,
+                Department: record.Department,
+                Gender: record.Gender,
+
               }),
             }
           );
-
+          console.log(response);
           if (response.ok) {
-            console.log("Edited Data sent to server:");
-            alert("Data Edited Successfully");
+            setErrorMessage("Successfully Edited");
           } else {
-            console.log("Data not sent to server");
-            alert("Data not Edited");
+            setErrorMessage("Error occurred");
           }
 
           setFormSubmitted(false);
         }
       } catch (error) {
+        setErrorMessage("Error occurred");
         console.error("An error occurred:", error);
       }
     };
@@ -116,6 +152,7 @@ const EditPI = () => {
         <label className="mb-3">
           Name:
           <input
+            required
             type="text"
             value={record.Name}
             onChange={(e) => setRecord({ ...record, Name: e.target.value })}
@@ -127,18 +164,87 @@ const EditPI = () => {
         <label className="mb-3">
           Birthday:
           <input
+            required
             type="date"
-            value={record.Birthdate}
+
+            value={
+              record.Birthday
+                ? new Date(record.Birthday).toISOString().split("T")[0]
+                : ""
+            }
+
             onChange={(e) =>
-              setRecord({ ...record, Birthdate: e.target.value })
+              setRecord({
+                ...record,
+                Birthday: e.target.value,
+              })
             }
             style={{ marginLeft: "10px" }}
           />
         </label>
         <br />
+
+        <label className="mb-3">
+          Gender:
+          <select
+            required
+            value={record.Gender}
+            onChange={(e) => {
+              setRecord({ ...record, Gender: e.target.value });
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            {genderList.map((gender, index) => (
+              <option key={index} value={gender}>
+                {gender}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+
+        <label className="mb-3">
+          Branch:
+          <select
+            required
+            value={record.Branch_Name}
+            onChange={(e) => {
+              setRecord({ ...record, Branch_Name: e.target.value });
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            {branchList.map((branch, index) => (
+              <option key={index} value={branch}>
+                {branch}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+
+        <label className="mb-3">
+          Department:
+          <select
+            required
+            value={record.Department}
+            onChange={(e) => {
+              setRecord({ ...record, Department: e.target.value });
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            {departmentList.map((department, index) => (
+              <option key={index} value={department}>
+                {department}
+              </option>
+            ))}
+          </select>
+        </label>
+        <br />
+
         <label className="mb-3">
           Contact Number:
           <input
+            required
             type="tel"
             value={record.Emergency_contact_Number}
             onChange={(e) =>
@@ -152,13 +258,13 @@ const EditPI = () => {
         <label className="mb-3">
           Marital Status:
           <select
+            required
             value={record.Marital_status}
             onChange={(e) =>
               setRecord({ ...record, Marital_status: e.target.value })
             }
             style={{ marginLeft: "10px" }}
           >
-            <option value="">{record.Marital_status}</option>
             {maritalStatusOptions.map((status, index) => (
               <option key={index} value={status}>
                 {status}
@@ -170,33 +276,21 @@ const EditPI = () => {
 
         <label className="mb-3">
           Job Title:
-          <select
-            value={record.Job_Title}
-            onChange={(e) =>
-              setRecord({ ...record, Job_Title: e.target.value })
-            }
-            style={{ marginLeft: "10px" }}
-          >
-            <option value="">{record.Job_Title}</option>
-            {jobTitleList.map((jobTitle, index) => (
-              <option key={index} value={jobTitle}>
-                {jobTitle}
-              </option>
-            ))}
-          </select>
+          <span style={{ marginLeft: "10px" }}>{record.Job_Title}</span>
         </label>
+
         <br />
 
         <label className="mb-3">
           Status:
           <select
+            required
             value={record.Status_Type}
             onChange={(e) =>
               setRecord({ ...record, Status_Type: e.target.value })
             }
             style={{ marginLeft: "10px" }}
           >
-            <option value="">{record.Status_Type}</option>
             {statusList.map((status, index) => (
               <option key={index} value={status}>
                 {status}
@@ -209,13 +303,13 @@ const EditPI = () => {
         <label className="mb-3">
           Pay Grade:
           <select
-            value={record.Pay_Grade}
+            required
+            value={record.Pay_grade}
             onChange={(e) =>
-              setRecord({ ...record, Pay_Grade: e.target.value })
+              setRecord({ ...record, Pay_grade: e.target.value })
             }
             style={{ marginLeft: "10px" }}
           >
-            <option value="">{record.Pay_Grade}</option>
             {payGradeList.map((payGrade, index) => (
               <option key={index} value={payGrade}>
                 {payGrade}
@@ -224,26 +318,9 @@ const EditPI = () => {
           </select>
         </label>
         <br />
-        {record.Job_Title !== "HR_Manager" && (
-          <label className="mb-3">
-            Supervisor:
-            <select
-              value={record.Supervisor_Name}
-              onChange={(e) =>
-                setRecord({ ...record, Supervisor_Name: e.target.value })
-              }
-              style={{ marginLeft: "10px" }}
-            >
-              <option value="">{record.Supervisor_Name}</option>
-              {supervisors.map((supervisor, index) => (
-                <option key={index} value={supervisor}>
-                  {supervisor}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        <br />
+        <div className="mb-3">
+          <p className="text-danger">{errorMessage}</p>
+        </div>
         <button
           onClick={goBack}
           type="button"

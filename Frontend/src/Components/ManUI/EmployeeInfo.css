@@ -1,0 +1,63 @@
+/* Apply a gradient background */
+.d-flex.align-items-center.gradient-bg {
+    background: linear-gradient(to bottom, #668560, #92af75);
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    color: #fff; /* Text color on the background */
+  }
+  
+  /* Style the table */
+  .table-bordered {
+    background-color: #fff;
+    border: 2px solid #3498db;
+    border-collapse: collapse;
+    width: 70%;
+    margin: 0 auto;
+  }
+  
+  .table-bordered th, .table-bordered td {
+    border: 2px solid #3498db;
+    padding: 8px;
+  }
+  
+  /* Style the table header */
+  .table-bordered thead {
+    background-color: #3498db;
+    color: #fff;
+  }
+  
+  /* Style the "View" button */
+  .btn-success {
+    background-color: #27ae60;
+    color: #fff;
+    border: none;
+  }
+  
+  .btn-success:hover {
+    background-color: #219f53;
+  }
+  
+  /* Style the "Edit" button */
+  .btn-warning {
+    background-color: #f39c12;
+    color: #fff;
+    border: none;
+  }
+  
+  .btn-warning:hover {
+    background-color: #e1920d;
+  }
+  
+  /* Style the "Back" button */
+  .btn-primary {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+  }
+  
+  .btn-primary:hover {
+    background-color: #2980b9;
+  }
