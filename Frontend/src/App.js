@@ -18,7 +18,17 @@ import LoginUI from "./Components/login";
 import AddHRManager from "./Components/Admin/AddHrManager";
 import EditPI from "./Components/ManUI/EditPI";
 import ResetPassword from "./Components/resetPassword";
+import LeaveApplication from "./Components/SupervisorUI/LeaveApplication";
 function App() {
+  window.addEventListener("scroll", function () {
+    var footer = document.querySelector("footer");
+    if (window.scrollY > 100) {
+      footer.classList.add("sticky-footer");
+    } else {
+      footer.classList.remove("sticky-footer");
+    }
+  });
+
   return (
     <div className="App">
       <Router>
@@ -95,6 +105,10 @@ function App() {
             <Route
               path="/login/Employee/reset-password"
               element={<ResetPassword />}
+            ></Route>
+            <Route
+              path="/login/Employee/SupUI/leaveApplication"
+              element={<LeaveApplication />}
             ></Route>
             <Route path="*" element={<h1>Not Found</h1>}></Route>
           </Routes>

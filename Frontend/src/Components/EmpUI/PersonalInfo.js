@@ -51,6 +51,19 @@ const PersonalInfo = () => {
       })
       .catch((error) => console.error("Error fetching data2:", error));
   }, []);
+  const [customAttributes, setCustomAttributes] = useState([]);
+  const [isCustomNull, setIsCustomNull] = useState(true);
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/personal/customAttributes")
+      .then((response) => {
+        setCustomAttributes(response.data);
+        if (response.data.length != 0) {
+          setIsCustomNull(false);
+        }
+      })
+      .catch((error) => console.error("Error fetching data2:", error));
+  }, []);
 
   return (
     <div>
@@ -97,6 +110,19 @@ const PersonalInfo = () => {
           )}
           {record.Job_Title === "HR Manager" && (edit = true)}
         </div>
+        {!isCustomNull && (
+          <div>
+            <h1 style={{ marginBottom: "20px", marginTop: "20px" }}>
+              Custom Attributes
+            </h1>
+            {customAttributes.map((rec) => (
+              <h5>
+                {rec["Attribute"]} :{rec["value"]}
+              </h5>
+            ))}
+          </div>
+        )}
+
         {!isNull && (
           <div>
             <h1>Dependents Details</h1>

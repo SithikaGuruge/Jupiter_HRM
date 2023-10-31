@@ -8,12 +8,8 @@ const app = express();
 var personalID;
 const session = require("express-session");
 const argon2 = require("argon2");
-
 const dotenv = require("dotenv");
 dotenv.config();
-
-require("dotenv").config();
-
 
 app.use(cookieParser());
 app.use(
@@ -48,6 +44,127 @@ db.connect((err) => {
   } else {
     console.log("Connected to MySQL");
   }
+});
+
+//get leave applications relevent to supervisor
+app.get("/api/SupUI/leaveApplications", (req, res) => {
+  db.query(
+    "SELECT * FROM leave_application where Employee_ID IN (SELECT Employee_ID FROM employee where Supervisor_ID = ?) and Approval_status = 'Pending' ",
+    [personalID],
+    (err, rows, fields) => {
+      if (err) {
+        console.error("Error querying MySQL:", err);
+        res.json({ error: "Internal server error" });
+        return;
+      } else {
+        console.log(rows);
+        res.json(rows);
+      }
+    }
+  );
+});
+
+//post edited leave applications
+app.post("/api/SupUI/edited/leaveApplications", (req, res) => {
+  console.log("Edited data fetch from server:");
+
+  const data = req.body.record;
+  console.log(data);
+  // console.log("data", data);
+
+  const sql3 = "CALL Remaining_leave_count(?,?,?,?,?,?)";
+  db.query(
+    sql3,
+    [
+      data.Leave_Application_ID,
+      data.Employee_ID,
+      data.LeaveType,
+      data.Start_Date.split("T")[0],
+      data.End_Date.split("T")[0],
+      data.Approval_status,
+    ],
+    (err) => {
+      if (err) {
+        console.error("Error querying MySQL:", err);
+        res.json({ error: "Internal server error" });
+        return;
+      } else {
+        console.log("success");
+        return res.json({ message: "Data Updated Successfully" });
+      }
+    }
+  );
+});
+
+//get custom attributes
+app.get("/api/personal/customAttributes", (req, res) => {
+  db.query(
+    "SELECT * FROM custom_attributes where Employee_ID = ?",
+    [personalID],
+    (err, rows, fields) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      } else {
+        console.log(rows);
+        res.json(rows);
+      }
+    }
+  );
+});
+
+app.get("/api/employee/customAttributes", (req, res) => {
+  db.query(
+    "SELECT * FROM custom_attributes where Employee_ID = ?",
+    [employeeId],
+    (err, rows, fields) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      } else {
+        console.log(rows);
+        res.json(rows);
+      }
+    }
+  );
+});
+
+//get dependent details
+app.get("/api/dependants", (req, res) => {
+  db.query(
+    "SELECT * FROM dependants where Employee_ID = ?",
+    [employeeId],
+    (err, rows, fields) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      } else {
+        console.log(rows);
+        res.json(rows);
+      }
+    }
+  );
+});
+
+//get personal dependents details
+app.get("/api/personal/dependants", (req, res) => {
+  db.query(
+    "SELECT * FROM dependants where Employee_ID = ?",
+    [personalID],
+    (err, rows, fields) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      } else {
+        console.log(rows);
+        res.json(rows);
+      }
+    }
+  );
 });
 
 //reset password
@@ -208,9 +325,71 @@ app.get("/api/leaveDetails", (req, res) => {
 });
 
 //post edited data
+// app.post("/api/ManUI/EditPI/edited", (req, res) => {
+//   console.log("Edited data fetch from server:");
+//   console.log(req.body);
+//   const data = req.body.Dependents;
+//   console.log("data", data);
+//   db.query(
+//     "CALL UpdateEmployee(?,?,?,?,?,?,?,?,?,?,?,?)",
+//     [
+//       req.body.EmployeeID,
+//       req.body.Name,
+//       req.body.Birthday,
+//       req.body.ContactNumber,
+//       req.body.MaritalStatus,
+//       req.body.Branch_Name,
+//       req.body.Status,
+//       req.body.Job_Title,
+//       req.body.PayGrade,
+//       req.body.Supervisor,
+//       req.body.Department,
+//       req.body.Gender,
+//     ],
+//     (err, rows) => {
+//       if (err) {
+//         console.error("Error querying MySQL:", err);
+//         res.json({
+//           Message: "Internal server error",
+//           error: "Internal server error",
+//         });
+//       } else {
+//         data.forEach((element) => {
+//           const sql3 = "CALL EditDependant(?,?,?,?,?)";
+//           db.query(
+//             sql3,
+//             [
+//               element.Name,
+//               element.Age,
+//               element.Relationship,
+//               element.status,
+//               element.Dependant_ID,
+//             ],
+//             (err, rows) => {
+//               if (err) {
+//                 console.error("Error querying MySQL:", err);
+//                 res.json({
+//                   Message: "Internal server error",
+//                   error: "Internal server error",
+//                 });
+//               } else {
+//                 return res.json({ message: "Data Updated Successfully" });
+//               }
+//             }
+//           );
+//         });
+//       }
+//     }
+//   );
+// });
+
 app.post("/api/ManUI/EditPI/edited", (req, res) => {
   console.log("Edited data fetch from server:");
   console.log(req.body);
+  const data = req.body.Dependents;
+  console.log("data", data);
+  const successMessages = []; // Store success messages for dependents
+
   db.query(
     "CALL UpdateEmployee(?,?,?,?,?,?,?,?,?,?,?,?)",
     [
@@ -230,13 +409,49 @@ app.post("/api/ManUI/EditPI/edited", (req, res) => {
     (err, rows) => {
       if (err) {
         console.error("Error querying MySQL:", err);
-        res.json({
+        return res.status(500).json({
           Message: "Internal server error",
           error: "Internal server error",
         });
-      } else {
-        return res.json({ message: "Data Updated Successfully" });
       }
+
+      // Use a Promise or async/await to ensure all dependent updates are complete
+      const dependentPromises = data.map((element) => {
+        return new Promise((resolve) => {
+          const sql3 = "CALL EditDependant(?,?,?,?,?)";
+          db.query(
+            sql3,
+            [
+              element.Name,
+              element.Age,
+              element.Relationship,
+              element.status,
+              element.Dependant_ID,
+            ],
+            (err, rows) => {
+              if (err) {
+                console.error("Error querying MySQL:", err);
+                successMessages.push("Dependent update failed");
+              } else {
+                successMessages.push("Dependent updated successfully");
+              }
+              resolve(); // Resolve the promise to continue processing
+            }
+          );
+        });
+      });
+
+      // Wait for all dependent updates to complete
+      Promise.all(dependentPromises).then(() => {
+        if (successMessages.length > 0) {
+          return res.json({
+            message: "Data Updated Successfully",
+            successMessages,
+          });
+        } else {
+          return res.json({ message: "Data Updated Successfully" });
+        }
+      });
     }
   );
 });
@@ -307,6 +522,8 @@ app.get("/api/employeeInfo", (req, res) => {
 app.post("/api/employee/addEmployee", (req, res) => {
   const sql2 = "SELECT getLastEmployeeID() AS lastEmployeeID";
   var data = req.body.DependantsDetails;
+  var attributes = req.body.CustomAttributes;
+  console.log("Attributes", attributes);
 
   db.query(sql2, (err, rows) => {
     if (err) {
@@ -369,6 +586,27 @@ app.post("/api/employee/addEmployee", (req, res) => {
                     return res
                       .status(500)
                       .json({ Message: "Internal server error" });
+                  } else {
+                    attributes.forEach((element) => {
+                      if (element.key === "" || element.value === "") {
+                        console.log("Attribute is empty");
+                        return;
+                      }
+                      const sql4 = "CALL AddCustomAttribute(?,?,?)";
+                      console.log("Attribute sql4", element.key, element.value);
+                      db.query(
+                        sql4,
+                        [lastEmployeeID, element.key, element.value],
+                        (err) => {
+                          if (err) {
+                            console.error("Error querying MySQL:", err);
+                            return res
+                              .status(500)
+                              .json({ Message: "Internal server error" });
+                          }
+                        }
+                      );
+                    });
                   }
                 }
               );
@@ -512,6 +750,54 @@ app.get("/api/check", (req, res) => {
       valid: false,
     });
   }
+});
+//post new dependants
+
+app.post("/api/ManUI/EditPI/newDependents", (req, res) => {
+  const depend = req.body.Dependents;
+  depend.forEach((element) => {
+    const sql = "CALL AddDependant(?,?,?,?,?)";
+    db.query(
+      sql,
+      [
+        req.body.EmployeeID,
+        element.name,
+        element.age,
+        element.relationship,
+        element.statusType,
+      ],
+      (err, rows) => {
+        if (err) {
+          console.error("Error querying MySQL:", err);
+          return res.status(500).json({ Message: "Internal server error" });
+        } else {
+          console.log(rows);
+          res.json({ Message: "Dependant added successfully" });
+        }
+      }
+    );
+  }); //end of forEach
+});
+//post new custom attributes
+app.post("/api/ManUI/EditPI/newCustomAttributes", (req, res) => {
+  const attributes = req.body.Attributes;
+
+  const sql = "CALL AddCustomAttribute(?,?,?)";
+  attributes.forEach((element) => {
+    db.query(
+      sql,
+      [req.body.EmployeeID, element.key, element.value],
+      (err, rows) => {
+        if (err) {
+          console.error("Error querying MySQL:", err);
+          return res.status(500).json({ Message: "Internal server error" });
+        } else {
+          console.log(rows);
+          res.json({ Message: "Custom Attribute added successfully" });
+        }
+      }
+    );
+  });
 });
 
 app.listen(port, () => {

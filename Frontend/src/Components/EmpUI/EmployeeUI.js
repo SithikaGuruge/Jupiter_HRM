@@ -86,7 +86,7 @@ const EmployeeUI = () => {
           </div>
         </div>
       </nav>
-      <h1>Employee</h1>
+
       <div className="d-flex flex-column align-items-center justify-content-center gradient-bg bg-primary vh-100 text-center">
         <button
           type="button"
@@ -101,9 +101,6 @@ const EmployeeUI = () => {
           onClick={handleRequestLeave}
         >
           Request Leave
-        </button>
-        <button type="button" className="button-with-icon" onClick={handleBack}>
-          Back
         </button>
       </div>
     </div>

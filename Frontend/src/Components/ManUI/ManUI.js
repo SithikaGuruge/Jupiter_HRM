@@ -1,25 +1,43 @@
-import React from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
+//import bootsrap from "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-const ManagerUI = () => {
+const ManUI = () => {
   const navigate = useNavigate();
-
   const handleViewPersonalInfo = () => {
     navigate("/login/Employee/EmployeeUI/PersonalInfo");
   };
-
   const handleAddEmployee = () => {
     navigate("/login/Employee/ManUI/AddEmployee");
   };
-
   const handleEmployeeInfo = () => {
     navigate("/login/Employee/ManUI/EmployeeInfo");
   };
+  const handleLogOut = () => {
+    axios.get("http://localhost:5001/api/logout");
+  };
+
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/check")
+      .then((response) => {
+        if (response.data.valid) {
+          navigate(`/login/Employee:${response.data.role}`);
+        } else {
+          navigate("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <div>
-      
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
           <Link to="/login/Employee/ManUI" className="navbar-brand">
@@ -39,26 +57,22 @@ const ManagerUI = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ml-auto">
               <li className="nav-item">
-
                 <Link
                   to="/login/Employee/ManUI/AddEmployee"
                   className="nav-link"
                   data-bs-toggle="collapse"
                   data-bs-target=".navbar-collapse.show"
                 >
-
                   Add Employee
                 </Link>
               </li>
               <li className="nav-item">
-
                 <Link
                   to="/login/Employee/ManUI/EmployeeInfo"
                   className="nav-link"
                   data-bs-toggle="collapse"
                   data-bs-target=".navbar-collapse.show"
                 >
-
                   View Employees
                 </Link>
               </li>
@@ -73,14 +87,12 @@ const ManagerUI = () => {
                 </Link>
               </li>
               <li className="nav-item">
-
                 <Link
                   to="/login/Employee/ManUI/request-leave"
                   className="nav-link"
                   data-bs-toggle="collapse"
                   data-bs-target=".navbar-collapse.show"
                 >
-
                   View Reports
                 </Link>
               </li>
@@ -112,7 +124,6 @@ const ManagerUI = () => {
                   data-bs-toggle="collapse"
                   data-bs-target=".navbar-collapse.show"
                 >
-
                   Log Out
                 </Link>
               </li>
@@ -120,28 +131,19 @@ const ManagerUI = () => {
           </div>
         </div>
       </nav>
+      <h1>Manager UI</h1>
 
-      
-      <div className="d-flex flex-column align-items-center gradient-bg bg-primary vh-100">
-        <div className="container">
-        <h1>Manager UI</h1>
-        <div className="btn-group" role="group">
-          <button type="button" className="btn btn-primary" onClick={handleViewPersonalInfo}>
-            View My Details
-          </button>
-          <button type="button" className="btn btn-success" onClick={handleAddEmployee}>
-            Add Employee
-          </button>
-        </div>
-        <div className="mt-2">
-          <button type="button" className="btn btn-info" onClick={handleEmployeeInfo}>
-            View Employees
-          </button>
-        </div>
-      </div>
-    </div>
+      <button type="button" onClick={handleViewPersonalInfo}>
+        View My Details
+      </button>
+      <button type="button" onClick={handleAddEmployee}>
+        Add Employee
+      </button>
+      <button type="button" onClick={handleEmployeeInfo}>
+        View Employees
+      </button>
     </div>
   );
 };
 
-export default ManagerUI;
+export default ManUI;

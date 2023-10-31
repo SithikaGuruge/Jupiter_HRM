@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import axios from "axios";
 const ViewEmployee = () => {
   const navigate = useNavigate();
@@ -19,13 +18,10 @@ const ViewEmployee = () => {
         console.log(err);
       });
   }, []);
-
   const goBack = () => {
     navigate(-1);
   };
-
   const [record, setRecord] = useState([]);
-
   useEffect(() => {
     fetch("http://localhost:5001/api/employeeInfo/employee")
       .then((response) => response.json())
@@ -33,13 +29,14 @@ const ViewEmployee = () => {
         console.log(data);
         setRecord(data);
       })
-      .catch((error) => console.error("Error fetching data:", error));
+      .catch((error) => console.error("Error fetching data2:", error));
   }, []);
 
   //get dependents data
   const [dependents, setDependents] = useState([]);
   const [isNull, setIsNull] = useState(true);
   const [dependentsColumn, setDependentsColumn] = useState([]);
+
   useEffect(() => {
     axios
       .get("http://localhost:5001/api/dependantsDetails/employee")
@@ -48,6 +45,21 @@ const ViewEmployee = () => {
         setDependents(response.data);
         if (response.data.length != 0) {
           setIsNull(false);
+        }
+      })
+      .catch((error) => console.error("Error fetching data2:", error));
+  }, []);
+
+  //get employee custom attributes
+  const [customAttributes, setCustomAttributes] = useState([]);
+  const [isCustomNull, setIsCustomNull] = useState(true);
+  useEffect(() => {
+    axios
+      .get("http://localhost:5001/api/employee/customAttributes")
+      .then((response) => {
+        setCustomAttributes(response.data);
+        if (response.data.length != 0) {
+          setIsCustomNull(false);
         }
       })
       .catch((error) => console.error("Error fetching data2:", error));
@@ -92,12 +104,23 @@ const ViewEmployee = () => {
             {record.Supervisor_Name !== null && (
               <h5>Supervisor Name: {record.Supervisor_Name}</h5>
             )}
-            <div></div>
+            {!isCustomNull && (
+              <div>
+                <h1 style={{ marginBottom: "20px", marginTop: "20px" }}>
+                  Custom Attributes
+                </h1>
+                {customAttributes.map((rec) => (
+                  <h5>
+                    {rec["Attribute"]} :{rec["value"]}
+                  </h5>
+                ))}
+              </div>
+            )}
           </div>
         ))}
         {!isNull && (
           <div>
-            <h1 style={{ marginBottom: "20px", marginTop: "20px" }}>
+            <h1 style={{ marginBottom: "20px", marginTop: "10px" }}>
               Dependents Details
             </h1>
             <table className="table table-striped">
@@ -121,49 +144,18 @@ const ViewEmployee = () => {
           </div>
         )}
 
-
-      {record.map((employee, i) => (
-        <div
-          key={i}
+        <button
+          onClick={goBack}
+          type="button"
+          className="btn btn-primary"
           style={{
-            border: "2px solid black",
-            padding: "20px",
-            marginTop: "20px",
-            marginBottom: "20px",
-            borderRadius: "10px",
-            width: "45%",
-            display: "flex",
-            flexDirection: "column", // Align children vertically
-            alignItems: "center", // Center children horizontally
+            color: "white",
+            fontSize: "16px",
           }}
         >
-          <h5>Employee ID: {employee.Employee_ID}</h5>
-          <h5>Name: {employee.Name}</h5>
-          <h5>Birthdate: {new Date(employee.Birthdate).toLocaleDateString()}</h5>
-          <h5>Marital Status: {employee.Marital_status}</h5>
-          <h5>Emergency Contact Number: {employee.Emergency_contact_Number}</h5>
-          <h5>Status Type: {employee.Status_Type}</h5>
-          <h5>Job Title: {employee.Job_Title}</h5>
-          <h5>Pay Grade: {employee.Pay_Grade}</h5>
-
-          {employee.Supervisor_Name !== null && (
-            <h5>Supervisor Name: {employee.Supervisor_Name}</h5>
-          )}
-        </div>
-      ))}
-
-      <button
-        onClick={goBack}
-        type="button"
-        className="btn btn-primary"
-        style={{
-          color: "white",
-          fontSize: "16px",
-          marginTop: "20px",
-        }}
-      >
-        Back
-      </button>
+          Back
+        </button>
+      </div>
     </div>
   );
 };

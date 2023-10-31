@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 const AddEmployee = () => {
   const navigate = useNavigate();
 
@@ -36,74 +37,19 @@ const AddEmployee = () => {
   const genderList = ["Male", "Female"];
   const [errorMessage, setErrorMessage] = useState("");
 
-
-  const organizations = ["Jupiter", "XYZ Ltd", "PQR Inc"];
-  const organizationDict = {
-    Jupiter: "OR001",
-    "XYZ Ltd": "OR002",
-    "PQR Inc": "OR003",
-  };
-  const maritalStatusOptions = ["Un-Married", "Married", "Divorced", "Widowed"];
-  const supervisors = ["E001", "E003"];
-  const statusList = [
-    "Intern-fulltime",
-    "Intern-Parttime",
-    "Contract-fulltime",
-    "Contract-parttime",
-    "Permanent",
-    "Freelance",
-  ];
-  const statusDict = {
-    "Intern-fulltime": "S001",
-    "Intern-Parttime": "S002",
-    "Contract-fulltime": "S003",
-    "Contract-parttime": "S004",
-    Permanent: "S005",
-    Freelance: "S006",
-  };
-  const jobTitleList = [
-    "HR Manager",
-    "Supervisor",
-    "Accountant",
-    "Software Engineer",
-    "QA Engineer",
-  ];
-  const jobTitleDict = {
-    "HR Manager": "JT001",
-    Supervisor: "JT002",
-    Accountant: "JT003",
-    "Software Engineer": "JT004",
-    "QA Engineer": "JT005",
-  };
-  const payGradeList = ["Level 1", "Level 2", "Level 3"];
-  const payGradeDict = {
-    "Level 1": "PG001",
-    "Level 2": "PG002",
-    "Level 3": "PG003",
-  };
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [dependents, setDependents] = useState([]);
+  const [attributes, setAttributes] = useState([]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormSubmitted(true);
 
     formRef.current.reset();
-    console.log("Form submitted:", {
-      employeeId,
-      organizationId,
-      name,
-      birthday,
-      contactNumber,
-      maritalStatus,
-      supervisorId,
-      statusID,
-      jobTitleId,
-      payGradeId,
-    });
+    console.log("Form submitted:", {});
   };
 
   function clearDetails() {
-
     setRecord({
       Name: "",
       Branch_Name: "",
@@ -118,7 +64,9 @@ const AddEmployee = () => {
       Gender: "",
     });
     setDependents([]);
+    setAttributes([]);
     setErrorMessage("");
+    setFormSubmitted(false);
   }
 
   useEffect(() => {
@@ -174,23 +122,18 @@ const AddEmployee = () => {
           Department: record.Department,
           Gender: record.Gender,
           DependantsDetails: dependents,
+          CustomAttributes: attributes,
         })
 
         .then((res) => {
           setErrorMessage(res.data.Message);
+          console.log("Attributes", attributes);
           console.log(res.data);
         })
 
-        .then((res) => res.json())
-        .then((json) => {
-          console.log(json);
-          console.log("Data sent to server");
-        })
         .catch((error) => {
-          console.log("Data not sent to serve");
+          console.log("Data not sent to server", error);
         });
-
-      setFormSubmitted(false);
     }
   }, [formSubmitted]);
 
@@ -215,6 +158,25 @@ const AddEmployee = () => {
   const relationship = ["Son", "Daughter"];
   const [value, setValue] = useState([]);
 
+  const handleInputChange1 = (e, name, index) => {
+    const { value } = e.target;
+    const list = [...attributes];
+    list[index][name] = value;
+    setAttributes(list);
+  };
+  const deleteHandle1 = (index) => {
+    const updatedAttributes = [...attributes];
+    updatedAttributes.splice(index, 1);
+    setAttributes(updatedAttributes);
+  };
+  const AddCustomAttributes = () => {
+    const attribute = {
+      key: "",
+      value: "",
+    };
+    setAttributes([...attributes, attribute]);
+  };
+
   const handleAdd = () => {
     const dependant = {
       name: "",
@@ -235,7 +197,6 @@ const AddEmployee = () => {
     updatedDependents.splice(index, 1);
     setDependents(updatedDependents);
   };
-
 
   return (
     <div>
@@ -439,8 +400,47 @@ const AddEmployee = () => {
           </label>
           <br />
           <div style={{ color: "red" }}>{errorMessage}</div>
+          {attributes.map((attribute, idx) => {
+            return (
+              <div key={idx} style={{ marginTop: "20px" }}>
+                <label>
+                  Attribute:
+                  <input
+                    required
+                    type="text"
+                    value={attribute.key}
+                    onChange={(e) => handleInputChange1(e, "key", idx)}
+                    style={{ marginLeft: "10px", marginRight: "10px" }}
+                  />
+                </label>
+                <label>
+                  Value:
+                  <input
+                    required
+                    type="text"
+                    value={attribute.value}
+                    onChange={(e) => handleInputChange1(e, "value", idx)}
+                    style={{ marginLeft: "10px", marginRight: "10px" }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => deleteHandle1(idx)}
+                  style={{
+                    marginBottom: "10px",
+                    marginTop: "10px",
+                    marginLeft: "20px",
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            );
+          })}
           <button
-            onClick={() => handleAdd()}
+            onClick={() => AddCustomAttributes()}
+            disabled={formSubmitted}
             type="button"
             className="btn btn-primary"
             style={{
@@ -450,8 +450,11 @@ const AddEmployee = () => {
               marginTop: "20px",
             }}
           >
-            Add Dependants Details
+            Add Custom Attributes
           </button>
+
+          <br />
+
           {dependents.map((dependant, idx) => {
             return (
               <div key={idx} style={{ marginTop: "20px" }}>
@@ -516,16 +519,26 @@ const AddEmployee = () => {
                     marginLeft: "20px",
                   }}
                 >
-                  <option value="">Select a supervisor</option>
-                  {supervisors.map((supervisor, index) => (
-                    <option key={index} value={supervisor}>
-                      {supervisor}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </tr>
-          )}
+                  Delete
+                </button>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => handleAdd()}
+            type="button"
+            disabled={formSubmitted}
+            className="btn btn-primary"
+            style={{
+              color: "white",
+              fontSize: "16px",
+              marginRight: "50px",
+              marginTop: "20px",
+            }}
+          >
+            Add Dependants Details
+          </button>
+          <br />
           <button
             onClick={goBack}
             type="button"
@@ -539,15 +552,16 @@ const AddEmployee = () => {
           >
             Back
           </button>
+
           <button
             className="btn btn-primary"
             type="submit"
             value="Submit"
+            disabled={formSubmitted}
             style={{ marginTop: "20px" }}
           >
             Submit
           </button>
-
           <button
             onClick={clearDetails}
             type="button"
